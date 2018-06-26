@@ -101,7 +101,8 @@ getTemp forecast =
 view: String -> String -> DataHelper.Unit -> ForecastResponse -> Html msg 
 view city country unit forecast = 
     div [] 
-        [ tempChart2 unit forecast.forecasts
+        [ div [class "section-header"] [Html.text ("5 day temperature chart for " ++ city ++ ", " ++ country)]
+        , tempChart2 unit forecast.forecasts
       --  , humidityChart2 forecast.forecasts
         , viewDetails city country unit forecast.forecasts
         ]
@@ -134,13 +135,7 @@ viewSummary unit forecast =
 
 viewForecast: DataHelper.Unit -> Forecast -> Html msg 
 viewForecast unit forecast = 
-    -- div [] 
-    --     [ Html.text (WeatherView.viewTime forecast.dt)
-    --     , viewSummary unit forecast
-    --     ]
     div [] 
-    -- Grid.containerFluid
-    --     []
         [ Grid.row [] 
             [ Grid.col [Col.md6] [Html.text (WeatherView.viewTime forecast.dt)]
             , Grid.col [Col.md6] [viewSummary unit forecast]
