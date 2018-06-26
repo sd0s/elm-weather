@@ -10,6 +10,6 @@
 * Update permission for buildAndRun.sh file (chmod +x buildAndRun.sh)
 
 ## Build And Run
-* $./buildAndRun (cleans up elm-stuff directory, compiles elm code and runs elm reactor)
-* Load http://localhost:8000/index.html to view dashboard
+* '$./buildAndRun' (cleans up elm-stuff directory, retrieves packages, compiles elm code and runs elm reactor)
+* Load http://localhost:8000/index.html in browser to view dashboard
 
