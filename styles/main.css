@@ -18,6 +18,10 @@
     width: 100%;
 }
 
+table td {
+    border: 1px solid #ddd;
+}
+
 .weather-city-name {
     font: 600 24px/1.4 Oswald,Arial,sans-serif;
 }
