@@ -329,7 +329,7 @@ view model =
             , Grid.col [] []
             ]
         , Grid.row []
-            [ Grid.col [ Col.xs4 ]
+            [ Grid.col [ Col.xs5 ]
                 [ Grid.row []
                     [ Grid.col []
                         [ model.currentWeather
@@ -344,7 +344,7 @@ view model =
                         ]
                     ]
                 ]
-            , Grid.col [ Col.xs8 ]
+            , Grid.col [ Col.xs7 ]
                 [ model.fiveDayForecast
                     |> webDataView (ForecastView.view model.city model.country model.unit)
                 ]

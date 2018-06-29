@@ -659,8 +659,24 @@ deleteTriggerButton triggerId =
 
 triggerRow : Trigger -> Html Msg
 triggerRow trigger =
+    let
+        strCondition = 
+            trigger.conditions
+            |> List.head
+            |> Maybe.map
+                (\condition ->
+                    let
+                        strC = Trigger.mapConditionTypeToString condition.name
+                        strE = Trigger.mapConditionExpressionToString condition.expression
+
+                    in
+                    strC ++ " is " ++ strE ++ " " ++ (toString condition.amount) 
+                )
+            |> Maybe.withDefault ""
+    in
     tr []
         [ td [] [ text (trigger.id |> Maybe.withDefault "") ]
+        , td [] [text strCondition]
         , td [] 
             [ trigger.id
                 |> Maybe.map
@@ -678,6 +694,7 @@ viewTriggers triggers =
             [ table []
                 [ thead []
                     [ th [] [ text "ID" ]
+                    , th [] [ text "Condition"]
                     , th [] []
                     ]
                 , tbody []
