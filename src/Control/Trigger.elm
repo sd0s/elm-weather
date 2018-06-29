@@ -3,6 +3,8 @@ module Control.Trigger exposing (..)
 {-| Container for creating and displaying list of triggers
 -}
 
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
 import Data.Helpers as DH
 import Data.Trigger as Trigger exposing (Trigger)
 import Date exposing (Date)
@@ -359,6 +361,9 @@ update msg model =
 
         -- reload triggers
         RefreshTriggers newTime ->
+            let
+                x = Debug.log "Refresh TRIGGERS:" newTime
+            in
             ( model, getTriggers )
 
 
@@ -409,25 +414,27 @@ optionValueToConditionType strVal =
 
 selectConditionType : Trigger.ConditionType -> Html Msg
 selectConditionType current =
-    div []
-        [ label [] [ text "Condition Type: " ]
-        , select
-            [ on "change"
-                (Decode.map ChangeConditionType targetConditionType)
+    Grid.row [] 
+        [Grid.col [Col.xs6]
+            [ label [] [ text "Condition Type: " ]
             ]
-          <|
-            List.map
-                (\condition ->
-                    option
-                        [ value (Tuple.first condition)
-                        , selected <| (current == optionValueToConditionType (Tuple.first condition))
-                        ]
-                        [ text (Tuple.second condition) ]
-                )
-                conditionTypeOptions
+        , Grid.col [Col.xs6]
+                [ select
+                    [ on "change"
+                        (Decode.map ChangeConditionType targetConditionType)
+                    ]
+                <|
+                    List.map
+                        (\condition ->
+                            option
+                                [ value (Tuple.first condition)
+                                , selected <| (current == optionValueToConditionType (Tuple.first condition))
+                                ]
+                                [ text (Tuple.second condition) ]
+                        )
+                        conditionTypeOptions
+                ]        
         ]
-
-
 
 -- SELECT CONDITION EXPRESSION TYPE
 
@@ -470,22 +477,26 @@ optionValueToConditionExpressionType strVal =
 
 selectConditionExpressionType : Trigger.ConditionExpressionType -> Html Msg
 selectConditionExpressionType current =
-    div []
-        [ label [] [ text "Expression Type: " ]
-        , select
-            [ on "change"
-                (Decode.map ChangeConditionExpressionType targetConditionExpressionType)
+    Grid.row []
+        [ Grid.col [Col.xs6 ]
+            [ label [] [ text "Expression Type: " ]
             ]
-          <|
-            List.map
-                (\expression ->
-                    option
-                        [ value (Tuple.first expression)
-                        , selected <| (current == optionValueToConditionExpressionType (Tuple.first expression))
-                        ]
-                        [ text (Tuple.second expression) ]
-                )
-                conditionExpressionTypeOptions
+        , Grid.col [Col.xs6]
+            [ select
+                [ on "change"
+                    (Decode.map ChangeConditionExpressionType targetConditionExpressionType)
+                ]
+            <|
+                List.map
+                    (\expression ->
+                        option
+                            [ value (Tuple.first expression)
+                            , selected <| (current == optionValueToConditionExpressionType (Tuple.first expression))
+                            ]
+                            [ text (Tuple.second expression) ]
+                    )
+                    conditionExpressionTypeOptions
+            ]
         ]
 
 
@@ -496,20 +507,23 @@ targetConditionExpressionType =
 
 viewConditionValue : TriggerForm -> Html Msg
 viewConditionValue form =
-    div []
-        [ label [] [ text "Amount: " ]
-        , input
-            [ type_ "number"
-            , onInput SetAmount
-            , value
-                (form.amount
-                    |> Maybe.withDefault 0
-                    |> toString
-                )
+    Grid.row []
+        [ Grid.col [Col.xs6]
+            [ label [] [ text "Amount: " ]
             ]
-            []
+        , Grid.col [Col.xs6]
+            [ input
+                [ type_ "number"
+                , onInput SetAmount
+                , value
+                    (form.amount
+                        |> Maybe.withDefault 0
+                        |> toString
+                    )
+                ]
+                []
+            ]
         ]
-
 
 timeConditionExpressionTypeOptions : List ( String, String )
 timeConditionExpressionTypeOptions =
@@ -563,49 +577,70 @@ targetTimeConditionExpressionType =
 
 customDateForm : TriggerForm -> Html Msg
 customDateForm editor =
-    div []
-        [ fromDateInput editor
-        , toDateInput editor
+    Grid.row []
+        [ Grid.col []
+            [ fromDateInput editor
+            , toDateInput editor            
+            ]
         ]
 
 
 fromDateInput : TriggerForm -> Html Msg
 fromDateInput { fromDatePicker, fromDate } =
-    div []
-        [ label [] [ text "From Date:" ]
-        , DatePicker.view fromDate pickerFromDateSettings fromDatePicker
-            |> Html.map SetFromDate
+    Grid.row []
+        [ Grid.col [Col.xs6]
+            [ label [] [ text "From Date:" ]
+            ]
+        , Grid.col [Col.xs6]
+            [ DatePicker.view fromDate pickerFromDateSettings fromDatePicker
+                |> Html.map SetFromDate
+            ]
         ]
 
 
 toDateInput : TriggerForm -> Html Msg
 toDateInput { toDatePicker, toDate } =
-    div []
-        [ label [] [ text "To Date: " ]
-        , DatePicker.view toDate pickerToDateSettings toDatePicker
-            |> Html.map SetToDate
+    Grid.row [] 
+        [ Grid.col [Col.xs6]
+            [ label [] [ text "To Date: " ]
+            ]
+        , Grid.col [Col.xs6]
+            [ DatePicker.view toDate pickerToDateSettings toDatePicker
+                |> Html.map SetToDate
+            ]
         ]
-
 
 viewTriggerEditor : Model -> Html Msg
 viewTriggerEditor model =
-    div []
-        [ div [ class "section-header" ] [ text "Create Trigger" ]
-        , div []
-            [ selectConditionType model.triggerEditor.condition
-            , selectConditionExpressionType model.triggerEditor.expression
-            , viewConditionValue model.triggerEditor
-            , customDateForm model.triggerEditor
-            , createTriggerButton
+    Grid.row []
+        [Grid.col []
+            [ Grid.row [] 
+                [Grid.col [Col.xs12] 
+                    [ div [class "section-header" ] [ text "Create Trigger" ]]
+                ]
+            , Grid.row []
+                [ Grid.col [Col.xs12]
+                    [ selectConditionType model.triggerEditor.condition
+                    , selectConditionExpressionType model.triggerEditor.expression
+                    , viewConditionValue model.triggerEditor
+                    , customDateForm model.triggerEditor
+                    , createTriggerButton
+                    ]            
+                ]
             ]
         ]
+        
 
 
 createTriggerButton : Html Msg
 createTriggerButton =
-    button
-        [ onClick Create ]
-        [ text "Create" ]
+    Grid.row []
+        [ Grid.col []
+            [ button
+                [ onClick Create ]
+                [ text "Create" ]
+            ]
+        ]
 
 
 triggerRow : Trigger -> Html msg
