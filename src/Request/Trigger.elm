@@ -19,3 +19,16 @@ createTrigger trigger =
                 |> Http.jsonBody
     in
     Http.post RH.triggerUrl body DT.triggerDecoder
+
+deleteTrigger: String -> Http.Request String
+deleteTrigger triggerId = 
+    Http.request 
+        { method = "DELETE"
+        , headers = []
+        , url = RH.triggerUrl2 ("/" ++ triggerId) 
+        , body = Http.emptyBody
+        , expect = Http.expectString
+        , timeout = Nothing 
+        , withCredentials = False
+        }
+    

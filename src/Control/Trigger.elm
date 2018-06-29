@@ -56,6 +56,8 @@ type Msg
     | CreateTriggerResponse (WebData Trigger)
     | OnGetCurrentTime Time
     | RefreshTriggers Time
+    | DeleteTrigger String
+    | DeleteTriggerResponse (WebData String)
 
 
 setLocation : Maybe DH.Coord -> Model -> Model
@@ -161,6 +163,11 @@ createTrigger trigger =
         |> RemoteData.sendRequest
         |> Cmd.map CreateTriggerResponse
 
+deleteTrigger: String -> Cmd Msg 
+deleteTrigger triggerId = 
+    RT.deleteTrigger triggerId 
+        |> RemoteData.sendRequest 
+        |> Cmd.map DeleteTriggerResponse
 
 buildTimeCondition : Time -> Time -> Trigger.TimeCondition
 buildTimeCondition targetTime currentTime =
@@ -199,17 +206,9 @@ validateTrigger maybeLocation maybeCurrentTime form =
                 fromTime =
                     fromDate |> Date.toTime
 
-                -- getTime timeExpression theTime currentTime =
-                --     case timeExpression of
-                --         Trigger.Exact -> theTime
-                --         Trigger.After -> theTime - currentTime -- add to current time = fromDate - curent time
-                --         Trigger.Before -> currentTime - theTime -- deduct from current time = Current time - from Date
-                --         _ -> theTime
-                -- startAmount = getTime form.fromTimeExpression fromTime timeMs
                 toTime =
                     toDate |> Date.toTime
 
-                -- endAmount = getTime form.toTimeExpression toTime timeMs
                 startTimeCondition =
                     buildTimeCondition fromTime time
 
@@ -361,11 +360,20 @@ update msg model =
 
         -- reload triggers
         RefreshTriggers newTime ->
-            let
-                x = Debug.log "Refresh TRIGGERS:" newTime
-            in
             ( model, getTriggers )
+        
+        DeleteTrigger triggerId ->
+            (model, deleteTrigger triggerId)
 
+        DeleteTriggerResponse response ->
+            let
+                cmd = 
+                    if RemoteData.isSuccess response then 
+                        getTriggers
+                    else 
+                        Cmd.none 
+            in
+            (model, cmd)
 
 
 -- SELECT CONDITION TYPE
@@ -642,11 +650,23 @@ createTriggerButton =
             ]
         ]
 
+deleteTriggerButton : String -> Html Msg 
+deleteTriggerButton triggerId = 
+    button
+        [ onClick (DeleteTrigger triggerId) ]
+        [ text "Delete" ]
+    
 
-triggerRow : Trigger -> Html msg
+triggerRow : Trigger -> Html Msg
 triggerRow trigger =
     tr []
         [ td [] [ text (trigger.id |> Maybe.withDefault "") ]
+        , td [] 
+            [ trigger.id
+                |> Maybe.map
+                    (\id -> deleteTriggerButton id)
+                |> Maybe.withDefault (text "")
+            ]
         ]
 
 
@@ -658,6 +678,7 @@ viewTriggers triggers =
             [ table []
                 [ thead []
                     [ th [] [ text "ID" ]
+                    , th [] []
                     ]
                 , tbody []
                     (List.map triggerRow triggers)

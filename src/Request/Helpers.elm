@@ -85,3 +85,7 @@ owmAirQualityUrl airQuality location =
 triggerUrl : String
 triggerUrl =
     triggerBaseUrl ++ "?appid=" ++ apiKey
+
+triggerUrl2: String -> String 
+triggerUrl2 str = 
+    triggerBaseUrl ++ str ++ "?appid=" ++ apiKey
