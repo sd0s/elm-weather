@@ -1,50 +1,55 @@
-module View.Helpers exposing(..)
+module View.Helpers exposing (..)
 
-import Html exposing(..)
-import Html.Attributes exposing(..)
-import Html.Events exposing(..)
-
+import Data.Helpers as DataHelper
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import RemoteData exposing (..)
-import Data.Helpers as DataHelper 
 
-viewTemperature: DataHelper.Unit -> Float -> String 
-viewTemperature unit temp = 
+
+viewTemperature : DataHelper.Unit -> Float -> String
+viewTemperature unit temp =
     let
-        strUnit = 
-            if unit == DataHelper.Celsius then 
+        strUnit =
+            if unit == DataHelper.Celsius then
                 "°C"
-            else 
+            else
                 "°F"
     in
-    (toString temp) ++ strUnit
+    toString temp ++ strUnit
 
-loader: Html msg 
-loader = 
-    div [class "loader"] []
 
-networkError: String -> a -> Html msg 
-networkError message err = 
+loader : Html msg
+loader =
+    div [ class "loader" ] []
+
+
+networkError : String -> a -> Html msg
+networkError message err =
     let
-        x = Debug.log "ERR: " err
+        x =
+            Debug.log "ERR: " err
     in
     -- Just clear the loader for now
-        text ""
+    text ""
 
-webDataView : (a -> Html msg) -> WebData a -> Html msg 
-webDataView view data = 
-    case data of 
+
+webDataView : (a -> Html msg) -> WebData a -> Html msg
+webDataView view data =
+    case data of
         NotAsked ->
             text ""
-        Loading -> 
+
+        Loading ->
             loader
 
         Failure err ->
             networkError "There was an error communicating with the server." err
-        
+
         Success val ->
             view val
 
-empty: Html msg 
-empty = 
-    text ""
 
+empty : Html msg
+empty =
+    text ""

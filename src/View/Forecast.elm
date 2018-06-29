@@ -1,51 +1,55 @@
-module View.Forecast exposing(view)
+module View.Forecast exposing (view)
 
-import Html exposing(..)
-import Html.Attributes exposing(..)
-
-import RemoteData exposing (..)
-
-import Data.Forecast exposing(..)
-import LineChart exposing(..)
-import Svg exposing(..)
-import Date exposing(..)
-import LineChart.Dots as Dots 
-import LineChart.Colors as Colors
-import LineChart.Axis as Axis 
-import LineChart.Container as Container 
-import LineChart.Interpolation as Interpolation
-import LineChart.Axis.Intersection as Intersection
-import LineChart.Legends as Legends
-import LineChart.Events as Events
-import LineChart.Junk as Junk exposing (..)
-import LineChart.Grid as Grid
-import LineChart.Legends as Legends
-import LineChart.Area as Area
-import LineChart.Line as Line
-import Data.Helpers as DataHelper
-import View.Weather as WeatherView 
-import Data.Weather as WeatherData
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Data.Forecast exposing (..)
+import Data.Helpers as DataHelper
+import Data.Weather as WeatherData
+import Date exposing (..)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import LineChart exposing (..)
+import LineChart.Area as Area
+import LineChart.Axis as Axis
+import LineChart.Axis.Intersection as Intersection
+import LineChart.Colors as Colors
+import LineChart.Container as Container
+import LineChart.Dots as Dots
+import LineChart.Events as Events
+import LineChart.Grid as Grid
+import LineChart.Interpolation as Interpolation
+import LineChart.Junk as Junk exposing (..)
+import LineChart.Legends as Legends
+import LineChart.Line as Line
+import RemoteData exposing (..)
+import Svg exposing (..)
 import View.Helpers as ViewHelpers
+import View.Weather as WeatherView
 
-xAxisConfig: Axis.Config Forecast msg 
-xAxisConfig = 
+
+xAxisConfig : Axis.Config Forecast msg
+xAxisConfig =
     Axis.time 800 "Date" (.dt >> Date.toTime)
 
-tempChart: List Forecast -> Svg msg 
-tempChart forecasts =
-    LineChart.view (.dt >> Date.toTime) getTemp
-       [ LineChart.line Colors.blue Dots.cross "Temp" forecasts
-       ]
 
-tempChart2: DataHelper.Unit -> List Forecast -> Svg msg 
+tempChart : List Forecast -> Svg msg
+tempChart forecasts =
+    LineChart.view (.dt >> Date.toTime)
+        getTemp
+        [ LineChart.line Colors.blue Dots.cross "Temp" forecasts
+        ]
+
+
+tempChart2 : DataHelper.Unit -> List Forecast -> Svg msg
 tempChart2 unit forecasts =
     let
-        strUnit = 
-            case unit of 
-                DataHelper.Celsius -> "C"
-                DataHelper.Fahrenheit -> "F"
+        strUnit =
+            case unit of
+                DataHelper.Celsius ->
+                    "C"
+
+                DataHelper.Fahrenheit ->
+                    "F"
     in
     LineChart.viewCustom
         { x = xAxisConfig
@@ -61,15 +65,19 @@ tempChart2 unit forecasts =
         , line = Line.default
         , dots = Dots.default
         }
-       [ LineChart.line Colors.blue Dots.cross "Temp" forecasts
-       ]
+        [ LineChart.line Colors.blue Dots.cross "Temp" forecasts
+        ]
 
-humidityChart: List Forecast -> Svg msg 
-humidityChart forecasts = 
-    LineChart.view1  (.dt >> Date.toTime) getHumidity
+
+humidityChart : List Forecast -> Svg msg
+humidityChart forecasts =
+    LineChart.view1 (.dt >> Date.toTime)
+        getHumidity
         forecasts
-humidityChart2: List Forecast -> Svg msg 
-humidityChart2 forecasts = 
+
+
+humidityChart2 : List Forecast -> Svg msg
+humidityChart2 forecasts =
     LineChart.viewCustom
         { x = xAxisConfig
         , y = Axis.default 450 "Humidity" getHumidity
@@ -84,74 +92,80 @@ humidityChart2 forecasts =
         , line = Line.default
         , dots = Dots.default
         }
-       [ LineChart.line Colors.blue Dots.cross "Humidity" forecasts
-       ]
+        [ LineChart.line Colors.blue Dots.cross "Humidity" forecasts
+        ]
 
-getHumidity: Forecast -> Float 
-getHumidity forecast = 
+
+getHumidity : Forecast -> Float
+getHumidity forecast =
     forecast.main.humidity
-    |> Maybe.withDefault 0
+        |> Maybe.withDefault 0
 
-getTemp: Forecast -> Float 
-getTemp forecast = 
+
+getTemp : Forecast -> Float
+getTemp forecast =
     forecast.main.temp
+
+
 
 -- TODO: custom time interval
 
-view: String -> String -> DataHelper.Unit -> ForecastResponse -> Html msg 
-view city country unit forecast = 
-    div [] 
-        [ div [class "section-header"] [Html.text ("5 day temperature chart for " ++ city ++ ", " ++ country)]
+
+view : String -> String -> DataHelper.Unit -> ForecastResponse -> Html msg
+view city country unit forecast =
+    div []
+        [ div [ class "section-header" ] [ Html.text ("5 day temperature chart for " ++ city ++ ", " ++ country) ]
         , tempChart2 unit forecast.forecasts
-      --  , humidityChart2 forecast.forecasts
+
+        --  , humidityChart2 forecast.forecasts
         , viewDetails city country unit forecast.forecasts
         ]
 
 
-viewSummary: DataHelper.Unit -> Forecast -> Html msg 
-viewSummary unit forecast = 
+viewSummary : DataHelper.Unit -> Forecast -> Html msg
+viewSummary unit forecast =
     let
-        tableDef = 
-            [ ("Temperature", ViewHelpers.viewTemperature unit forecast.main.temp)
-            , ("Cloudiness", WeatherView.viewCloud forecast.weather)
-            , ("Wind", WeatherView.viewWind unit forecast.wind )
-            , ("Pressure", WeatherView.viewPressure forecast.main.pressure)
+        tableDef =
+            [ ( "Temperature", ViewHelpers.viewTemperature unit forecast.main.temp )
+            , ( "Cloudiness", WeatherView.viewCloud forecast.weather )
+            , ( "Wind", WeatherView.viewWind unit forecast.wind )
+            , ( "Pressure", WeatherView.viewPressure forecast.main.pressure )
             ]
     in
-    div [] 
-        [ table [class "weather-table"] 
-            [ tbody [] 
-                ( tableDef 
-                    |> List.map 
+    div []
+        [ table [ class "weather-table" ]
+            [ tbody []
+                (tableDef
+                    |> List.map
                         (\row ->
-                            tr [] 
-                                [ td [] [Html.text (Tuple.first row)]
-                                , td [] [Html.text (Tuple.second row)]
+                            tr []
+                                [ td [] [ Html.text (Tuple.first row) ]
+                                , td [] [ Html.text (Tuple.second row) ]
                                 ]
                         )
                 )
             ]
-        ]        
+        ]
 
-viewForecast: DataHelper.Unit -> Forecast -> Html msg 
-viewForecast unit forecast = 
-    div [] 
-        [ Grid.row [] 
-            [ Grid.col [Col.md6] [Html.text (WeatherView.viewTime forecast.dt)]
-            , Grid.col [Col.md6] [viewSummary unit forecast]
+
+viewForecast : DataHelper.Unit -> Forecast -> Html msg
+viewForecast unit forecast =
+    div []
+        [ Grid.row []
+            [ Grid.col [ Col.md6 ] [ Html.text (WeatherView.viewTime forecast.dt) ]
+            , Grid.col [ Col.md6 ] [ viewSummary unit forecast ]
             ]
         ]
 
 
 {-| Display all forecast details
 -}
-viewDetails: String -> String -> DataHelper.Unit -> List Forecast-> Html msg 
-viewDetails city country unit forecasts = 
+viewDetails : String -> String -> DataHelper.Unit -> List Forecast -> Html msg
+viewDetails city country unit forecasts =
     div []
-        [ div [class "section-header"] [Html.text ("Hourly weather and forecasts in " ++ city ++ ", " ++ country)]
-        , div [] 
-            (forecasts 
+        [ div [ class "section-header" ] [ Html.text ("Hourly weather and forecasts in " ++ city ++ ", " ++ country) ]
+        , div []
+            (forecasts
                 |> List.map (viewForecast unit)
-            ) 
+            )
         ]
-
